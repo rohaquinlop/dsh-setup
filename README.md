@@ -13,6 +13,7 @@ No credentials, no sessions, no machine identity live here.
 | `profiles/desktop/pnpm-workspace.yaml` | pnpm settings for the profile |
 | `skills/` | Personal skills: branch context, PR workflow, audits, reviews |
 | `install.sh` | Copies this setup into `$DSH_HOME` without overwriting by default |
+| `sync.sh` | Two-way sync: `push` from the live setup, `pull` into it, `check` for secrets |
 
 ## Skills
 
@@ -62,6 +63,41 @@ plugin_manager { action: "install_bundle", target: "/path/to/dsh-shepherd" }
 ```
 
 or remove `dsh-shepherd` from `profiles/desktop/package.json` before installing this profile.
+
+## Two computers
+
+The repository is the shared copy. Each computer keeps its own harness home and its own
+`dsh-shepherd` checkout path.
+
+**First time on a computer**
+
+```bash
+git clone https://github.com/rohaquinlop/dsh-setup.git
+cd dsh-setup
+DSH_SHEPHERD_PATH=/path/to/dsh-shepherd ./install.sh
+```
+
+**After changing something in the harness**
+
+```bash
+cd dsh-setup
+./sync.sh push        # copies skills and profile files here, rewrites the bundle path, scans
+git add -A && git commit -m "..." && git push
+```
+
+**On the other computer**
+
+```bash
+cd dsh-setup
+git pull
+./sync.sh pull        # overwrites live skills and profile files with the repository copy
+```
+
+`sync.sh push` removes repository skills that no longer exist live. `sync.sh pull` does not delete
+extra live skills; remove those by hand.
+
+The bundle path is stored as `link:__DSH_SHEPHERD__` and substituted per machine by `install.sh`
+or `DSH_SHEPHERD_PATH`. A machine that keeps the checkout elsewhere exports that variable.
 
 ## Profile choices
 
