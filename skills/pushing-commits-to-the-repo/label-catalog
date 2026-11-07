@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Print a repository's labels as `name<TAB>description`, sorted by name.
+# Usage: label-catalog [owner/repo]   (default: the repository of the working directory)
+set -euo pipefail
+repo="${1:-}"
+if [[ -n "$repo" ]]; then
+  gh label list -R "$repo" --limit 500 --json name,description --jq '.[] | [.name, (.description // "")] | @tsv' | sort
+else
+  gh label list --limit 500 --json name,description --jq '.[] | [.name, (.description // "")] | @tsv' | sort
+fi
