@@ -5,6 +5,12 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 DSH_HOME="${DSH_HOME:-$HOME/.dsh}"
 PROFILE="${DSH_PROFILE:-desktop}"
+# The harness exports DSH_PROFILE for its own profile, so a run from a harness
+# terminal inherits a name this repo may not ship. Fall back to the shipped one.
+if [ ! -d "$ROOT/profiles/$PROFILE" ]; then
+  echo "warn: profile '$PROFILE' is not in this repository; using desktop" >&2
+  PROFILE=desktop
+fi
 SHEPHERD_PATH="${DSH_SHEPHERD_PATH:-$HOME/opensource-projects/dsh-shepherd}"
 FORCE=0
 
@@ -52,6 +58,12 @@ for dir in "$ROOT"/skills/*/; do
   echo "skills: $name"
 done
 
+# The harness reads $DSH_HOME/AGENTS.md as the user-global instruction chain,
+# before any project AGENTS.md.
+if [ -f "$ROOT/AGENTS.md" ]; then
+  copy_file "$ROOT/AGENTS.md" "$DSH_HOME/AGENTS.md"
+fi
+
 copy_file "$ROOT/profiles/$PROFILE/cordis.patch.yml" "$DSH_HOME/profiles/$PROFILE/cordis.patch.yml"
 copy_file "$ROOT/profiles/$PROFILE/cordis.yml" "$DSH_HOME/profiles/$PROFILE/cordis.yml"
 copy_file "$ROOT/profiles/$PROFILE/pnpm-workspace.yaml" "$DSH_HOME/profiles/$PROFILE/pnpm-workspace.yaml"
@@ -67,5 +79,5 @@ Next steps:
 1. Install the matching bundle if it is missing:
    plugin_manager { action: "install_bundle", target: "$SHEPHERD_PATH" }
 2. Restart the app, or let the profile reload.
-3. Confirm: plugin_manager list_plugins shows the dsh-shepherd rows, and the skill catalog lists ten skills.
+3. Confirm: plugin_manager list_plugins shows the dsh-shepherd rows, and the skill catalog lists every skill in skills/.
 EOF
