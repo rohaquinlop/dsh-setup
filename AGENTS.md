@@ -59,6 +59,26 @@ A project `AGENTS.md` is more specific and wins where the two disagree.
 - State a hypothesis as a hypothesis, then test it.
 - Clean up the processes, containers, and temp files you started, and say so.
 
+## Definition of done
+
+- Run the project's own checks before you say done: the test, lint, and format
+  commands written in its `AGENTS.md` or manifest.
+- Never claim a check passed unless you read its output.
+- If a check cannot run here, name it and say why.
+
+## Bug fixes
+
+- Reproduce the bug in a failing test before you change the code, when the
+  project has a test suite.
+- Fix the cause, not the symptom. Re-run the failing test and then the suite.
+
+## Session start
+
+- In a repository with `.dsh/branch-context/`, read the brief, the decisions
+  log, and the latest handoff before you act.
+- When a repository has no `AGENTS.md` and the work is more than a one-line fix,
+  offer the `init` skill.
+
 ## Subagents
 
 - Do not delegate implementation. Subagents are for read-only exploration or an
